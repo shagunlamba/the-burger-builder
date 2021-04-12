@@ -74,33 +74,23 @@ class BurgerBuilder extends Component {
     purchaseHandler = ()=> {
         this.setState({purchasing: true});
     } 
-    purchaseCancelHanlder = ()=> {
+    purchaseCancelHandler = ()=> {
         this.setState({purchasing: false});
     }
-    purchaseContinueHanlder = ()=> {
+    purchaseContinueHandler = ()=> {
         // alert("You continue!");
-        this.setState({loading: true});
-        const order = {
-            ingredients: this.state.ingredients,
-            price: this.state.totalPrice,
-            customer: {
-                name: 'shagun',
-                address: {
-                    street: 'Test street',
-                    zipCode: '100',
-                    country: 'Germany'
-                },
-                email: 'test@test.com'
-            },
-            deliveryMethod: 'fastest'
+        
+        const queryParams = []
+        for(let i in this.state.ingredients){
+            queryParams.push(encodeURIComponent(i)+"="+encodeURIComponent(this.state.ingredients[i]));
         }
-        axios.post('/orders.json', order).then((resp)=>{
-            console.log("The response", resp);
-            this.setState({loading: false, purchasing: false});
-        }).catch((err)=>{
-            console.log("The error:", err);
-            this.setState({loading: false, purchasing: false});
+        queryParams.push('price= ' + this.state.totalPrice);
+        const queryString = queryParams.join('&');
+        this.props.history.push({
+            pathname: '/checkout',
+            search: '?' + queryString
         });
+
     }
 
     render() {
@@ -111,8 +101,8 @@ class BurgerBuilder extends Component {
             disabledInfo[key] = disabledInfo[key]<=0
         }
         let orderSummary = <OrderSummary ingredients={this.state.ingredients}
-                                purchaseCancelled = {this.purchaseCancelHanlder}
-                                purchaseContinued = {this.purchaseContinueHanlder}
+                                purchaseCancelled = {this.purchaseCancelHandler}
+                                purchaseContinued = {this.purchaseContinueHandler}
                                 price= {this.state.totalPrice.toFixed(2)}
                             />;
         if(this.state.loading){
